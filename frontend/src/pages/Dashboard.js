@@ -85,35 +85,6 @@ export default function Dashboard() {
   return (
     <div style={{position:'relative', minHeight:'100vh', background:'#0a0a0b', overflow:'hidden'}}>
 
-      {/* Background animations */}
-      <div style={{
-        position:'fixed', top:'-20%', left:'-10%',
-        width:600, height:600,
-        background:'radial-gradient(circle, rgba(29,158,117,0.07) 0%, transparent 70%)',
-        borderRadius:'50%', pointerEvents:'none', zIndex:0,
-        animation:'float1 8s ease-in-out infinite'
-      }}/>
-      <div style={{
-        position:'fixed', bottom:'-20%', right:'-10%',
-        width:500, height:500,
-        background:'radial-gradient(circle, rgba(29,158,117,0.05) 0%, transparent 70%)',
-        borderRadius:'50%', pointerEvents:'none', zIndex:0,
-        animation:'float2 10s ease-in-out infinite'
-      }}/>
-      <div style={{
-        position:'fixed', top:'40%', right:'15%',
-        width:350, height:350,
-        background:'radial-gradient(circle, rgba(29,158,117,0.04) 0%, transparent 70%)',
-        borderRadius:'50%', pointerEvents:'none', zIndex:0,
-        animation:'float1 12s ease-in-out infinite reverse'
-      }}/>
-      <div style={{
-        position:'fixed', inset:0,
-        backgroundImage:'linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px)',
-        backgroundSize:'48px 48px',
-        pointerEvents:'none', zIndex:0
-      }}/>
-
       <style>{`
         @keyframes float1 {
           0%, 100% { transform: translate(0, 0) scale(1); }
@@ -129,13 +100,30 @@ export default function Dashboard() {
           from { opacity: 0; transform: translateY(16px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
+        .react-calendar { width: 100% !important; background: transparent !important; border: none !important; font-family: inherit !important; }
+        .react-calendar__tile { background: none !important; color: rgba(255,255,255,0.5) !important; border-radius: 8px !important; padding: 10px !important; font-size: 13px !important; border: none !important; }
+        .react-calendar__tile:hover { background: rgba(255,255,255,0.05) !important; color: white !important; }
+        .react-calendar__tile--now { background: transparent !important; color: rgba(255,255,255,0.5) !important; border: none !important; outline: none !important; box-shadow: none !important; }
+        .react-calendar__tile--now:hover { background: rgba(255,255,255,0.05) !important; color: white !important; }
+        .react-calendar__tile--now:focus { background: transparent !important; }
+        .react-calendar__tile--active, .react-calendar__tile--active:hover { background: #1D9E75 !important; color: white !important; }
+        .react-calendar__tile.has-slot::after { content: ''; display: block; width: 4px; height: 4px; background: #1D9E75; border-radius: 50%; margin: 2px auto 0; }
+        .react-calendar__tile--active.has-slot::after { background: white; }
+        .react-calendar__navigation button { background: none !important; color: rgba(255,255,255,0.7) !important; font-size: 14px !important; font-family: inherit !important; border: none !important; border-radius: 8px !important; }
+        .react-calendar__navigation button:hover { background: rgba(255,255,255,0.05) !important; }
+        .react-calendar__navigation button:disabled { background: none !important; color: rgba(255,255,255,0.2) !important; }
+        .react-calendar__month-view__weekdays { color: rgba(255,255,255,0.25) !important; font-size: 11px !important; }
+        .react-calendar__month-view__weekdays abbr { text-decoration: none !important; }
+        .react-calendar__month-view__days__day--weekend { color: rgba(255,255,255,0.5) !important; }
+        .react-calendar__month-view__days__day--neighboringMonth { color: rgba(255,255,255,0.15) !important; }
       `}</style>
 
-      {/* App layout */}
+      {/* Background blobs */}
+      <div style={{position:'fixed', top:'-20%', left:'-10%', width:600, height:600, background:'radial-gradient(circle, rgba(29,158,117,0.07) 0%, transparent 70%)', borderRadius:'50%', pointerEvents:'none', zIndex:0, animation:'float1 8s ease-in-out infinite'}}/>
+      <div style={{position:'fixed', bottom:'-20%', right:'-10%', width:500, height:500, background:'radial-gradient(circle, rgba(29,158,117,0.05) 0%, transparent 70%)', borderRadius:'50%', pointerEvents:'none', zIndex:0, animation:'float2 10s ease-in-out infinite'}}/>
+      <div style={{position:'fixed', top:'40%', right:'15%', width:350, height:350, background:'radial-gradient(circle, rgba(29,158,117,0.04) 0%, transparent 70%)', borderRadius:'50%', pointerEvents:'none', zIndex:0, animation:'float1 12s ease-in-out infinite reverse'}}/>
+      <div style={{position:'fixed', inset:0, backgroundImage:'linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px)', backgroundSize:'48px 48px', pointerEvents:'none', zIndex:0}}/>
+
       <div className="app-layout" style={{position:'relative', zIndex:1}}>
         <div className="sidebar">
           <div className="sidebar-logo">
@@ -190,20 +178,18 @@ export default function Dashboard() {
               <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:16}}>
                 <div className="card">
                   <h3>Select a date</h3>
-                  <div className="calendar-wrapper">
-                    <Calendar
-                      onChange={setSelectedDate}
-                      value={selectedDate}
-                      tileClassName={({ date }) => {
-                        const d = date.toISOString().split('T')[0];
-                        return slotDates.includes(d) ? 'has-slot' : null;
-                      }}
-                    />
-                  </div>
+                  <Calendar
+                    onChange={setSelectedDate}
+                    value={selectedDate}
+                    tileClassName={({ date }) => {
+                      const d = date.toISOString().split('T')[0];
+                      return slotDates.includes(d) ? 'has-slot' : null;
+                    }}
+                  />
                 </div>
                 <div className="card">
                   <h3>Slots for {selectedDate.toLocaleDateString('en-US', {month:'short', day:'numeric'})}</h3>
-                  {filteredSlots.length === 0 && <div className="empty-state">No slots on this date.<br/>Try another date with a green dot.</div>}
+                  {filteredSlots.length === 0 && <div className="empty-state">No slots on this date.<br/>Try a date with a green dot.</div>}
                   {filteredSlots.map(slot => (
                     <div className="slot-item" key={slot.id}>
                       <div>
@@ -260,13 +246,7 @@ export default function Dashboard() {
               <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(280px, 1fr))', gap:16}}>
                 {supervisors.map(sup => (
                   <div className="card" key={sup.id} style={{display:'flex', alignItems:'center', gap:16}}>
-                    <div style={{
-                      width:48, height:48, borderRadius:'50%',
-                      background:'rgba(29,158,117,0.1)',
-                      border:'1px solid rgba(29,158,117,0.2)',
-                      display:'flex', alignItems:'center', justifyContent:'center',
-                      fontSize:16, fontWeight:500, color:'#1D9E75', flexShrink:0
-                    }}>
+                    <div style={{width:48, height:48, borderRadius:'50%', background:'rgba(29,158,117,0.1)', border:'1px solid rgba(29,158,117,0.2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, fontWeight:500, color:'#1D9E75', flexShrink:0}}>
                       {sup.name.split(' ').map(n => n[0]).slice(0,2).join('')}
                     </div>
                     <div>
