@@ -24,7 +24,8 @@ export default function Dashboard() {
     headers: { Authorization: `Bearer ${token}` }
   });
 
-  useEffect(() => { fetchSlots(); fetchMyBookings(); fetchSupervisors(); }, []);
+// eslint-disable-next-line react-hooks/exhaustive-deps
+useEffect(() => { fetchSlots(); fetchMyBookings(); fetchSupervisors(); }, []);
 
   const fetchSlots = async () => {
     try { const res = await api.get('/slots'); setSlots(res.data); } catch {}
