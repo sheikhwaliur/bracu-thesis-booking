@@ -538,11 +538,9 @@ a { text-decoration: none; color: inherit; }
   .calendar-wrapper .react-calendar__month-view__weekdays { color: var(--text3); font-size: 11px; }
   .calendar-wrapper .react-calendar__month-view__weekdays abbr { text-decoration: none; }
 
-
   .react-calendar__tile--now {
     background: transparent !important;
-    color: var(--text) !important;
   }
   .react-calendar__tile--now:hover {
-    background: var(--bg3) !important;
+    background: rgba(255,255,255,0.05) !important;
   }
