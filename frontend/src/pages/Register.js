@@ -12,7 +12,7 @@ export default function Register() {
     e.preventDefault();
     setError('');
     try {
-      await axios.post('http://localhost:8080/api/auth/register', form);
+      await axios.post('https://bracu-thesis-booking.onrender.com/api/auth/register', form);
       setSuccess('Registered! Redirecting to login...');
       setTimeout(() => navigate('/login'), 1500);
     } catch (err) {

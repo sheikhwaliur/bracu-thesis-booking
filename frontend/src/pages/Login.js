@@ -10,7 +10,7 @@ export default function Login() {
     e.preventDefault();
     setError('');
     try {
-      const res = await axios.post('http://localhost:8080/api/auth/login', form);
+      const res = await axios.post('https://bracu-thesis-booking.onrender.com/api/auth/login', form);
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
       window.location.href = '/dashboard';
