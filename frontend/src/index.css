@@ -361,45 +361,70 @@ a { text-decoration: none; color: inherit; }
   .sidebar {
     width: 100%;
     height: auto;
-    position: relative;
+    position: sticky;
+    top: 0;
     flex-direction: column;
     padding: 0;
+    z-index: 20;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background: rgba(10,10,11,0.92) !important;
   }
 
   .sidebar-logo {
-    padding: 12px 16px 4px 16px;
+    padding: 10px 16px;
     border-bottom: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
-  .sidebar-logo h2 { font-size: 13px; }
+  .sidebar-logo h2 { font-size: 14px; }
   .sidebar-logo p { display: none; }
 
   .sidebar-nav {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 8px;
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 6px 8px;
     gap: 6px;
-    border-bottom: 1px solid var(--border);
+    border-top: 1px solid rgba(255,255,255,0.05);
+    scrollbar-width: none;
   }
+
+  .sidebar-nav::-webkit-scrollbar { display: none; }
 
   .nav-btn {
     flex-shrink: 0;
-    padding: 7px 12px;
+    padding: 6px 14px;
     font-size: 12px;
     margin-bottom: 0;
     white-space: nowrap;
     justify-content: center;
+    border: 1px solid rgba(255,255,255,0.06) !important;
+    border-radius: 99px !important;
   }
+
+  .nav-btn.active {
+    background: rgba(29,158,117,0.12) !important;
+    border-color: rgba(29,158,117,0.3) !important;
+    color: #1D9E75 !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  .nav-btn::before { display: none !important; }
 
   .sidebar-user { display: none; }
 
   .logout-btn {
     display: block !important;
     width: auto !important;
-    margin: 4px 16px 8px 16px !important;
-    padding: 6px 14px !important;
-    font-size: 12px !important;
+    margin: 0 !important;
+    padding: 5px 12px !important;
+    font-size: 11px !important;
     position: static !important;
+    border-radius: 99px !important;
   }
 
   .main-content {
@@ -407,9 +432,9 @@ a { text-decoration: none; color: inherit; }
     padding: 16px;
   }
 
-  .stats-grid { grid-template-columns: 1fr; gap: 8px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
   .stat-card { padding: 12px 16px; }
-  .stat-card .value { font-size: 24px; }
+  .stat-card .value { font-size: 22px; }
 
   .modal {
     margin: 16px;
@@ -419,6 +444,10 @@ a { text-decoration: none; color: inherit; }
 
   div[style*="repeat(4,1fr)"] {
     grid-template-columns: 1fr 1fr !important;
+  }
+
+  div[style*="1fr 1fr"] {
+    grid-template-columns: 1fr !important;
   }
 }
 
