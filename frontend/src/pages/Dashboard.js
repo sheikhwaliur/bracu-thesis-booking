@@ -437,63 +437,97 @@ export default function Dashboard() {
       </div>
 
       {/* Mobile Bottom Nav */}
-      <div className="mobile-bottom-nav" style={{
-        position:'fixed', bottom:0, left:0, right:0, zIndex:50,
-        background:'rgba(10,10,11,0.85)',
-        backdropFilter:'blur(30px)',
-        WebkitBackdropFilter:'blur(30px)',
-        borderTop:'1px solid rgba(29,158,117,0.15)',
-        padding:'8px 12px 20px',
-        gap:4,
-        display:'none',
-        boxShadow:'0 -8px 32px rgba(29,158,117,0.08), 0 -1px 0 rgba(255,255,255,0.04)',
+<div className="mobile-bottom-nav" style={{
+  position:'fixed', bottom:0, left:0, right:0, zIndex:50,
+  background:'rgba(10,10,11,0.85)',
+  backdropFilter:'blur(30px)',
+  WebkitBackdropFilter:'blur(30px)',
+  borderTop:'1px solid rgba(29,158,117,0.15)',
+  padding:'8px 12px 20px',
+  gap:4,
+  display:'none',
+  boxShadow:'0 -8px 32px rgba(29,158,117,0.08)',
+}}>
+  <div style={{
+    position:'absolute', top:-1, left:0, right:0, height:1,
+    background:'linear-gradient(90deg, transparent 0%, #1D9E75 50%, transparent 100%)',
+    animation:'shimmer 2s ease-in-out infinite',
+    opacity:0.8,
+  }}/>
+  <style>{`
+    @keyframes ripple {
+      0% { transform: scale(0); opacity: 0.6; }
+      100% { transform: scale(4); opacity: 0; }
+    }
+    .bottom-tab { position: relative; overflow: hidden; }
+    .bottom-tab .ripple-circle {
+      position: absolute;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: rgba(29,158,117,0.4);
+      transform: scale(0);
+      animation: ripple 0.6s ease-out forwards;
+      pointer-events: none;
+    }
+  `}</style>
+  {[
+    {id:'slots', label:'Book', icon:'🗓️'},
+    {id:'bookings', label:'Bookings', icon:'📋'},
+    {id:'supervisors', label:'Supervisors', icon:'🎓'},
+    {id:'thesis', label:'Thesis', icon:'📝'},
+    {id:'notif', label:'Alerts', icon:'🔔'},
+  ].map(tab => (
+    <button key={tab.id}
+      className="bottom-tab"
+      onClick={(e) => {
+        const btn = e.currentTarget;
+        const circle = document.createElement('span');
+        circle.className = 'ripple-circle';
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left - 10;
+        const y = e.clientY - rect.top - 10;
+        circle.style.left = x + 'px';
+        circle.style.top = y + 'px';
+        btn.appendChild(circle);
+        setTimeout(() => circle.remove(), 600);
+        if (tab.id === 'notif') {
+          setShowNotifications(true);
+        } else {
+          setActiveTab(tab.id);
+        }
+      }}
+      style={{
+        flex:1, display:'flex', flexDirection:'column', alignItems:'center',
+        gap:4, padding:'6px 4px', background:'none', border:'none',
+        cursor:'pointer', fontFamily:'inherit', position:'relative',
+        transition:'all 0.2s ease',
       }}>
-        <div style={{
-          position:'absolute', top:-1, left:0, right:0, height:1,
-          background:'linear-gradient(90deg, transparent 0%, #1D9E75 50%, transparent 100%)',
-          animation:'shimmer 2s ease-in-out infinite',
-          opacity:0.8,
-        }}/>
-        {[
-          {id:'slots', label:'Book', icon:'🗓️'},
-          {id:'bookings', label:'Bookings', icon:'📋'},
-          {id:'supervisors', label:'Supervisors', icon:'🎓'},
-          {id:'thesis', label:'Thesis', icon:'📝'},
-          {id:'notif', label:'Alerts', icon:'🔔'},
-        ].map(tab => (
-          <button key={tab.id}
-            onClick={() => tab.id==='notif' ? setShowNotifications(true) : setActiveTab(tab.id)}
-            style={{
-              flex:1, display:'flex', flexDirection:'column', alignItems:'center',
-              gap:4, padding:'6px 4px', background:'none', border:'none',
-              cursor:'pointer', fontFamily:'inherit', position:'relative',
-              transition:'all 0.2s ease',
-            }}>
-            <div style={{
-              width:32, height:32, borderRadius:10, display:'flex',
-              alignItems:'center', justifyContent:'center', fontSize:18,
-              background: (activeTab===tab.id && tab.id!=='notif') ? 'rgba(29,158,117,0.15)' : 'transparent',
-              transition:'all 0.2s ease',
-            }}>
-              {tab.icon}
-              {tab.id==='notif' && myBookings.length>0 && (
-                <span style={{position:'absolute',top:2,right:'50%',marginRight:-20,background:'#f87171',borderRadius:'50%',width:14,height:14,fontSize:9,display:'flex',alignItems:'center',justifyContent:'center',color:'white',fontWeight:600}}>
-                  {myBookings.length}
-                </span>
-              )}
-            </div>
-            <span style={{
-              fontSize:10,
-              color: activeTab===tab.id && tab.id!=='notif' ? '#1D9E75' : 'rgba(255,255,255,0.4)',
-              fontWeight: activeTab===tab.id && tab.id!=='notif' ? 500 : 400,
-              transition:'color 0.2s',
-            }}>{tab.label}</span>
-            {activeTab===tab.id && tab.id!=='notif' && (
-              <div style={{position:'absolute',top:0,left:'50%',transform:'translateX(-50%)',width:20,height:2,background:'#1D9E75',borderRadius:99}}/>
-            )}
-          </button>
-        ))}
+      <div style={{
+        width:32, height:32, borderRadius:10, display:'flex',
+        alignItems:'center', justifyContent:'center', fontSize:18,
+        background: (activeTab===tab.id && tab.id!=='notif') ? 'rgba(29,158,117,0.15)' : 'transparent',
+        boxShadow: (activeTab===tab.id && tab.id!=='notif') ? '0 0 12px rgba(29,158,117,0.3)' : 'none',
+        transition:'all 0.2s ease',
+      }}>
+        {tab.icon}
+        {tab.id==='notif' && myBookings.length>0 && (
+          <span style={{position:'absolute',top:2,right:'50%',marginRight:-20,background:'#f87171',borderRadius:'50%',width:14,height:14,fontSize:9,display:'flex',alignItems:'center',justifyContent:'center',color:'white',fontWeight:600}}>
+            {myBookings.length}
+          </span>
+        )}
       </div>
+      <span style={{
+        fontSize:10,
+        color: activeTab===tab.id && tab.id!=='notif' ? '#1D9E75' : 'rgba(255,255,255,0.4)',
+        fontWeight: activeTab===tab.id && tab.id!=='notif' ? 500 : 400,
+        transition:'color 0.2s',
+      }}>{tab.label}</span>
+      {activeTab===tab.id && tab.id!=='notif' && (
+        <div style={{position:'absolute',top:0,left:'50%',transform:'translateX(-50%)',width:20,height:2,background:'#1D9E75',borderRadius:99,boxShadow:'0 0 8px #1D9E75'}}/>
+      )}
+    </button>
+  ))}
+</div>
 
       {showNotifications && (
         <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,zIndex:100,background:'rgba(0,0,0,0.5)',backdropFilter:'blur(4px)'}} onClick={() => setShowNotifications(false)}>
