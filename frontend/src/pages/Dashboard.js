@@ -47,8 +47,9 @@ export default function Dashboard() {
       setMessage('Slot booked successfully!');
       setSelectedSlot(null);
       setThesisTitle('');
-      fetchSlots();
-      fetchMyBookings();
+      await fetchSlots();
+      await fetchMyBookings();
+      await fetchWaitlist();
       setTimeout(() => setMessage(''), 4000);
     } catch (err) {
       setError(err.response?.data?.error || 'Booking failed.');
