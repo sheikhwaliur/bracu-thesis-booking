@@ -389,12 +389,20 @@ a { text-decoration: none; color: inherit; }
     }
   
     .nav-item {
-      padding: 7px 10px;
-      font-size: 11px;
+      flex-shrink: 0;
+      padding: 7px 12px;
+      font-size: 12px;
       gap: 6px;
-      flex: 1;
-      justify-content: center;
       margin-bottom: 0;
+      white-space: nowrap;
+      border: 1px solid var(--border) !important;
+      border-radius: 8px !important;
+    }
+  
+    .nav-item.active {
+      border: 1px solid rgba(29,158,117,0.4) !important;
+      background: rgba(29,158,117,0.08) !important;
+      color: #1D9E75 !important;
     }
   
     .sidebar-user { display: none; }
