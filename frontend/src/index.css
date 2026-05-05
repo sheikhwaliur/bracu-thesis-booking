@@ -383,13 +383,11 @@ a { text-decoration: none; color: inherit; }
   .sidebar-logo p { display: none; }
 
   .sidebar-nav {
-    display: flex;
-    flex-direction: row;
-    overflow-x: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
     padding: 6px 8px;
     gap: 6px;
     border-top: 1px solid rgba(255,255,255,0.05);
-    scrollbar-width: none;
   }
 
   .sidebar-nav::-webkit-scrollbar { display: none; }
