@@ -13,7 +13,7 @@ export default function Login() {
       const res = await axios.post('https://bracu-thesis-booking.onrender.com/api/auth/login', form);
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
-      window.location.href = '/dashboard';
+      window.location.href = res.data.user.role === 'admin' ? '/admin' : '/dashboard';
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed.');
     }
