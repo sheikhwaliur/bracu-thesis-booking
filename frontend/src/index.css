@@ -359,7 +359,7 @@ a { text-decoration: none; color: inherit; }
   .app-layout { flex-direction: column; }
 
   .sidebar {
-    width: 80%;
+    width: 100%;
     height: auto;
     position: relative;
     flex-direction: column;
