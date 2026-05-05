@@ -195,6 +195,10 @@ export default function Dashboard() {
         .filter-select { width:100%; padding:9px 12px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:8px; font-size:13px; color:#f0f0ee; font-family:inherit; outline:none; transition:border-color 0.2s; }
         .filter-select:focus { border-color:#1D9E75; }
         .filter-select option { background:#111; }
+        .slots-scroll::-webkit-scrollbar { width: 4px; }
+        .slots-scroll::-webkit-scrollbar-track { background: transparent; }
+        .slots-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+        .slots-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
       `}</style>
 
       {/* Background blobs */}
@@ -337,47 +341,49 @@ export default function Dashboard() {
                     }}
                   />
                 </div>
-                <div className="card">
-                  <h3>
+                <div className="card" style={{display:'flex',flexDirection:'column',maxHeight:520,overflow:'hidden'}}>
+                  <h3 style={{flexShrink:0}}>
                     {filterSupervisor || filterRoom || filterStatus
                       ? `Filtered slots (${filteredSlots.length})`
                       : `Slots for ${selectedDate.toLocaleDateString('en-US', {month:'short', day:'numeric'})}`}
                   </h3>
-                  {filteredSlots.length === 0 && <div className="empty-state">No slots found.<br/>Try different filters or another date.</div>}
-                  {filteredSlots.map(slot => (
-                    <div className="slot-item" key={slot.id}>
-                      <div>
-                        <div className="slot-time">{formatTime(slot.start_time)} – {formatTime(slot.end_time)}</div>
-                        <div className="slot-room">{slot.room}</div>
-                        <div className="slot-supervisor">{slot.supervisor_name}</div>
-                        {slot.status === 'open' && (
-                          <button className="book-btn" onClick={() => setSelectedSlot(slot)}>Book this slot</button>
-                        )}
-                      </div>
-                      <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:6}}>
-                        <span className={slot.status === 'open' ? 'badge-open' : 'badge-booked'}>
-                          {slot.status === 'open' ? 'Open' : 'Booked'}
-                        </span>
-                        {slot.status === 'booked' && (() => {
-                          const inWaitlist = myWaitlist.find(w => w.slot_id === slot.id);
-                          return inWaitlist ? (
-                            <div style={{textAlign:'right'}}>
-                              <div style={{fontSize:11,color:'rgba(255,255,255,0.4)',marginBottom:4}}>Position #{inWaitlist.position}</div>
-                              <button onClick={() => leaveWaitlist(slot.id)}
-                                style={{background:'rgba(220,50,50,0.08)',border:'1px solid rgba(220,50,50,0.2)',color:'#f87171',borderRadius:6,padding:'4px 10px',fontSize:11,fontFamily:'inherit',cursor:'pointer'}}>
-                                Leave waitlist
+                  <div className="slots-scroll" style={{overflowY:'auto',flex:1,paddingRight:4}}>
+                    {filteredSlots.length === 0 && <div className="empty-state">No slots found.<br/>Try different filters or another date.</div>}
+                    {filteredSlots.map(slot => (
+                      <div className="slot-item" key={slot.id}>
+                        <div>
+                          <div className="slot-time">{formatTime(slot.start_time)} – {formatTime(slot.end_time)}</div>
+                          <div className="slot-room">{slot.room}</div>
+                          <div className="slot-supervisor">{slot.supervisor_name}</div>
+                          {slot.status === 'open' && (
+                            <button className="book-btn" onClick={() => setSelectedSlot(slot)}>Book this slot</button>
+                          )}
+                        </div>
+                        <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:6}}>
+                          <span className={slot.status === 'open' ? 'badge-open' : 'badge-booked'}>
+                            {slot.status === 'open' ? 'Open' : 'Booked'}
+                          </span>
+                          {slot.status === 'booked' && (() => {
+                            const inWaitlist = myWaitlist.find(w => w.slot_id === slot.id);
+                            return inWaitlist ? (
+                              <div style={{textAlign:'right'}}>
+                                <div style={{fontSize:11,color:'rgba(255,255,255,0.4)',marginBottom:4}}>Position #{inWaitlist.position}</div>
+                                <button onClick={() => leaveWaitlist(slot.id)}
+                                  style={{background:'rgba(220,50,50,0.08)',border:'1px solid rgba(220,50,50,0.2)',color:'#f87171',borderRadius:6,padding:'4px 10px',fontSize:11,fontFamily:'inherit',cursor:'pointer'}}>
+                                  Leave waitlist
+                                </button>
+                              </div>
+                            ) : (
+                              <button onClick={() => joinWaitlist(slot.id)}
+                                style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.1)',color:'rgba(255,255,255,0.6)',borderRadius:6,padding:'4px 10px',fontSize:11,fontFamily:'inherit',cursor:'pointer'}}>
+                                Join waitlist
                               </button>
-                            </div>
-                          ) : (
-                            <button onClick={() => joinWaitlist(slot.id)}
-                              style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.1)',color:'rgba(255,255,255,0.6)',borderRadius:6,padding:'4px 10px',fontSize:11,fontFamily:'inherit',cursor:'pointer'}}>
-                              Join waitlist
-                            </button>
-                          );
-                        })()}
+                            );
+                          })()}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             </>
