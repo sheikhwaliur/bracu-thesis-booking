@@ -35,18 +35,10 @@ export default function Dashboard() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { fetchSlots(); fetchMyBookings(); fetchSupervisors(); fetchWaitlist(); }, []);
 
-  const fetchSlots = async () => {
-    try { const res = await api.get('/slots'); setSlots(res.data); } catch {}
-  };
-  const fetchMyBookings = async () => {
-    try { const res = await api.get('/bookings/mine'); setMyBookings(res.data); } catch {}
-  };
-  const fetchSupervisors = async () => {
-    try { const res = await api.get('/supervisors'); setSupervisors(res.data); } catch {}
-  };
-  const fetchWaitlist = async () => {
-    try { const res = await api.get('/waitlist/mine'); setMyWaitlist(res.data); } catch {}
-  };
+  const fetchSlots = async () => { try { const res = await api.get('/slots'); setSlots(res.data); } catch {} };
+  const fetchMyBookings = async () => { try { const res = await api.get('/bookings/mine'); setMyBookings(res.data); } catch {} };
+  const fetchSupervisors = async () => { try { const res = await api.get('/supervisors'); setSupervisors(res.data); } catch {} };
+  const fetchWaitlist = async () => { try { const res = await api.get('/waitlist/mine'); setMyWaitlist(res.data); } catch {} };
 
   const handleBook = async () => {
     setError('');
@@ -68,25 +60,19 @@ export default function Dashboard() {
     try {
       await api.delete('/bookings/' + bookingId);
       setMessage('Booking cancelled.');
-      fetchSlots();
-      fetchMyBookings();
-      fetchWaitlist();
+      fetchSlots(); fetchMyBookings(); fetchWaitlist();
       setTimeout(() => setMessage(''), 3000);
-    } catch {
-      setError('Could not cancel booking.');
-    }
+    } catch { setError('Could not cancel booking.'); }
   };
 
   const joinWaitlist = async (slotId) => {
     setError('');
     try {
       const res = await api.post('/waitlist', { slot_id: slotId });
-      setMessage('Added to waitlist! Your position: #' + res.data.position);
+      setMessage('Added to waitlist! Position: #' + res.data.position);
       fetchWaitlist();
       setTimeout(() => setMessage(''), 4000);
-    } catch (err) {
-      setError(err.response?.data?.error || 'Could not join waitlist.');
-    }
+    } catch (err) { setError(err.response?.data?.error || 'Could not join waitlist.'); }
   };
 
   const leaveWaitlist = async (slotId) => {
@@ -95,9 +81,7 @@ export default function Dashboard() {
       setMessage('Removed from waitlist.');
       fetchWaitlist();
       setTimeout(() => setMessage(''), 3000);
-    } catch {
-      setError('Could not leave waitlist.');
-    }
+    } catch { setError('Could not leave waitlist.'); }
   };
 
   const downloadBookingPDF = (b) => {
@@ -113,16 +97,13 @@ export default function Dashboard() {
       doc.text('Thesis Defense Booking Confirmation', 105, 42, { align: 'center' });
       doc.setDrawColor(29, 158, 117);
       doc.line(20, 50, 190, 50);
-      const labels = ['Student Name', 'Student ID', 'Thesis Title', 'Defense Date', 'Time', 'Room', 'Supervisor'];
-      const values = [user.name || '', user.student_id || '', b.thesis_title || '', formatDate(b.date), formatTime(b.start_time) + ' - ' + formatTime(b.end_time), b.room, b.supervisor_name || ''];
+      const labels = ['Student Name','Student ID','Thesis Title','Defense Date','Time','Room','Supervisor'];
+      const values = [user.name||'', user.student_id||'', b.thesis_title||'', formatDate(b.date), formatTime(b.start_time)+' - '+formatTime(b.end_time), b.room, b.supervisor_name||''];
       labels.forEach((label, i) => {
-        doc.setTextColor(136, 136, 132);
-        doc.text(label, 20, 65 + i * 14);
-        doc.setTextColor(240, 240, 238);
-        doc.text(values[i], 80, 65 + i * 14);
+        doc.setTextColor(136, 136, 132); doc.text(label, 20, 65 + i * 14);
+        doc.setTextColor(240, 240, 238); doc.text(values[i], 80, 65 + i * 14);
       });
-      doc.setTextColor(29, 158, 117);
-      doc.setFontSize(10);
+      doc.setTextColor(29, 158, 117); doc.setFontSize(10);
       doc.text('Official booking confirmation from BRACU Thesis Portal', 105, 270, { align: 'center' });
       doc.save('BRACU_Thesis_Booking_' + user.student_id + '.pdf');
     });
@@ -135,12 +116,12 @@ export default function Dashboard() {
     return (hour > 12 ? hour - 12 : hour) + ':' + m + ' ' + (hour >= 12 ? 'PM' : 'AM');
   };
 
-  const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+  const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
   const logout = () => { localStorage.clear(); navigate('/login'); };
 
   const selectedDateStr = selectedDate.toISOString().split('T')[0];
   const filteredSlots = slots.filter(s => {
-    const dateMatch = (filterSupervisor || filterRoom || filterStatus) ? true : s.date && s.date.startsWith(selectedDateStr);
+    const dateMatch = (filterSupervisor||filterRoom||filterStatus) ? true : s.date && s.date.startsWith(selectedDateStr);
     const supervisorMatch = filterSupervisor ? s.supervisor_name === filterSupervisor : true;
     const roomMatch = filterRoom ? s.room === filterRoom : true;
     const statusMatch = filterStatus ? s.status === filterStatus : true;
@@ -152,12 +133,45 @@ export default function Dashboard() {
   const phaseCount = Object.values(phases).filter(Boolean).length + (myBookings.length > 0 ? 1 : 0);
   const progressPct = Math.min(Math.round((phaseCount / 4) * 100), 100);
 
+  const navTabs = [
+    {id:'slots', label:'Book a slot', icon:'🗓️', color:'#1D9E75'},
+    {id:'bookings', label:'My bookings', icon:'✅', color:'#3b82f6'},
+    {id:'supervisors', label:'Supervisors', icon:'🎓', color:'#8b5cf6'},
+    {id:'thesis', label:'My thesis', icon:'🔬', color:'#f59e0b'},
+  ];
+
+  const NavTab = ({tab}) => (
+    <button onClick={() => setActiveTab(tab.id)} style={{
+      display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
+      gap:6, padding:'12px 8px', width:'100%',
+      background: activeTab===tab.id ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.02)',
+      border: activeTab===tab.id ? '1px solid '+tab.color+'55' : '1px solid rgba(255,255,255,0.06)',
+      borderRadius:12, cursor:'pointer', fontFamily:'inherit',
+      transition:'all 0.2s ease',
+      transform: activeTab===tab.id ? 'translateY(-1px)' : 'none',
+      boxShadow: activeTab===tab.id ? '0 4px 12px '+tab.color+'22' : 'none',
+    }}>
+      <div style={{
+        width:36, height:36, borderRadius:10,
+        background: activeTab===tab.id ? tab.color+'22' : 'rgba(255,255,255,0.04)',
+        display:'flex', alignItems:'center', justifyContent:'center',
+        fontSize:18, transition:'all 0.2s ease',
+        border: activeTab===tab.id ? '1px solid '+tab.color+'44' : '1px solid rgba(255,255,255,0.06)',
+      }}>{tab.icon}</div>
+      <span style={{
+        fontSize:10, fontWeight: activeTab===tab.id ? 500 : 400,
+        color: activeTab===tab.id ? tab.color : 'rgba(255,255,255,0.4)',
+        transition:'color 0.2s', textAlign:'center', lineHeight:1.3,
+      }}>{tab.label}</span>
+    </button>
+  );
+
   return (
-    <div style={{ position: 'relative', minHeight: '100vh', background: '#0a0a0b', overflow: 'hidden' }}>
+    <div style={{position:'relative', minHeight:'100vh', background:'#0a0a0b', overflow:'hidden'}}>
       <style>{`
-        @keyframes float1 { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(30px,-30px) scale(1.05)} 66%{transform:translate(-20px,20px) scale(0.95)} }
-        @keyframes float2 { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(-40px,20px) scale(1.08)} 66%{transform:translate(20px,-30px) scale(0.97)} }
-        @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes float1{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-30px) scale(1.05)}66%{transform:translate(-20px,20px) scale(0.95)}}
+        @keyframes float2{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-40px,20px) scale(1.08)}66%{transform:translate(20px,-30px) scale(0.97)}}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
         .react-calendar{width:100%!important;background:transparent!important;border:none!important;font-family:inherit!important}
         .react-calendar__tile{background:none!important;color:rgba(255,255,255,0.5)!important;border-radius:8px!important;padding:10px!important;font-size:13px!important;border:none!important}
         .react-calendar__tile:hover{background:rgba(255,255,255,0.05)!important;color:white!important}
@@ -188,55 +202,33 @@ export default function Dashboard() {
         <div className="sidebar">
           <div className="sidebar-logo"><h2>BRACU Thesis</h2><p>Slot Booking Portal</p></div>
           <div className="sidebar-nav">
-            {[
-              {id:'slots',label:'Book a slot',icon:'📅'},
-              {id:'bookings',label:'My bookings',icon:'📋'},
-              {id:'supervisors',label:'Supervisors',icon:'👨‍🏫'},
-              {id:'thesis',label:'My thesis',icon:'📝'},
-            ].map(tab => (
-              <button key={tab.id} className={'nav-item ' + (activeTab === tab.id ? 'active' : '')} onClick={() => setActiveTab(tab.id)}>
-                <span style={{fontSize:14}}>{tab.icon}</span> {tab.label}
-              </button>
-            ))}
-            <button className="nav-item" onClick={() => setShowNotifications(!showNotifications)} style={{position:'relative'}}>
-              <span style={{fontSize:14}}>🔔</span> Notifications
-              {myBookings.length > 0 && (
-                <span style={{marginLeft:'auto',background:'#1D9E75',borderRadius:'30%',width:18,height:18,fontSize:10,display:'flex',alignItems:'center',justifyContent:'center',color:'white',fontWeight:500,flexShrink:0}}>
-                  {myBookings.length}
-                </span>
-              )}
+            {navTabs.map(tab => <NavTab key={tab.id} tab={tab}/>)}
+            <button onClick={() => setShowNotifications(!showNotifications)} style={{
+              display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
+              gap:6, padding:'12px 8px', width:'100%',
+              background: showNotifications ? 'rgba(248,113,113,0.08)' : 'rgba(255,255,255,0.02)',
+              border: showNotifications ? '1px solid rgba(248,113,113,0.4)' : '1px solid rgba(255,255,255,0.06)',
+              borderRadius:12, cursor:'pointer', fontFamily:'inherit', transition:'all 0.2s ease',
+              transform: showNotifications ? 'translateY(-1px)' : 'none',
+            }}>
+              <div style={{
+                width:36, height:36, borderRadius:10, position:'relative',
+                background: showNotifications ? 'rgba(248,113,113,0.15)' : 'rgba(255,255,255,0.04)',
+                display:'flex', alignItems:'center', justifyContent:'center', fontSize:18,
+                border: showNotifications ? '1px solid rgba(248,113,113,0.3)' : '1px solid rgba(255,255,255,0.06)',
+              }}>
+                🔔
+                {myBookings.length > 0 && <span style={{position:'absolute',top:-4,right:-4,background:'#f87171',borderRadius:'50%',width:14,height:14,fontSize:9,display:'flex',alignItems:'center',justifyContent:'center',color:'white',fontWeight:600}}>{myBookings.length}</span>}
+              </div>
+              <span style={{fontSize:10,color:showNotifications?'#f87171':'rgba(255,255,255,0.4)',transition:'color 0.2s'}}>Alerts</span>
             </button>
-            {showNotifications && (
-              <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,zIndex:100,background:'rgba(0,0,0,0.5)',backdropFilter:'blur(4px)'}} onClick={() => setShowNotifications(false)}>
-              <div style={{position:'fixed',top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:'90%',maxWidth:360,background:'rgba(20,20,24,0.99)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:14,padding:20,zIndex:101}} onClick={e => e.stopPropagation()}>
-               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
-                <div style={{fontSize:12,fontWeight:500,color:'rgba(255,255,255,0.4)',letterSpacing:'0.06em'}}>NOTIFICATIONS</div>
-                <button onClick={() => setShowNotifications(false)} style={{background:'none',border:'none',color:'rgba(255,255,255,0.4)',cursor:'pointer',fontSize:16}}>✕</button>
-               </div>
-
-                {myBookings.length === 0 && <div style={{fontSize:12,color:'rgba(255,255,255,0.3)',textAlign:'center',padding:'8px 0'}}>No notifications</div>}
-                {myBookings.map(b => {
-                  const diffDays = Math.ceil((new Date(b.date) - new Date()) / (1000 * 60 * 60 * 24));
-                  return (
-                    <div key={b.id} style={{padding:'8px 10px',background:'rgba(29,158,117,0.06)',border:'1px solid rgba(29,158,117,0.15)',borderRadius:8,marginBottom:6}}>
-                      <div style={{fontSize:12,color:'#f0f0ee',fontWeight:500}}>{diffDays===0?'🔴 Defense TODAY!':diffDays===1?'🟡 Defense TOMORROW!':diffDays>0?'🟢 In '+diffDays+' days':'✅ Completed'}</div>
-                      <div style={{fontSize:11,color:'rgba(255,255,255,0.4)',marginTop:3}}>{formatDate(b.date)} · {formatTime(b.start_time)}</div>
-                      <div style={{fontSize:11,color:'#1D9E75',marginTop:2}}>{b.supervisor_name}</div>
-                    </div>
-                  );
-                })}
-              </div>
-              </div>
-            
-
-            )}
           </div>
           <div className="sidebar-user" onClick={() => navigate('/profile')} style={{cursor:'pointer'}}>
             <div style={{display:'flex',alignItems:'center',gap:10}}>
               <div style={{width:32,height:32,borderRadius:'50%',background:'rgba(29,158,117,0.1)',border:'1px solid rgba(29,158,117,0.2)',overflow:'hidden',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,color:'#1D9E75',flexShrink:0}}>
                 {localStorage.getItem('avatar') ? <img src={localStorage.getItem('avatar')} alt="avatar" style={{width:'100%',height:'100%',objectFit:'cover'}}/> : user.name && user.name.charAt(0)}
               </div>
-              <div><p>{user.name}</p><span>{user.student_id} · {user.role === 'admin' ? 'Admin' : 'Student'}</span></div>
+              <div><p>{user.name}</p><span>{user.student_id} · {user.role==='admin'?'Admin':'Student'}</span></div>
             </div>
           </div>
           <button className="logout-btn" onClick={logout}>Sign out</button>
@@ -246,7 +238,7 @@ export default function Dashboard() {
           {message && <div className="success-msg" style={{marginBottom:20}}>{message}</div>}
           {error && <div className="error-msg" style={{marginBottom:20}}>{error}</div>}
 
-          {activeTab === 'slots' && (
+          {activeTab==='slots' && (
             <>
               <div className="page-header"><h1>Book a defense slot</h1><p>Select a date and pick an available time slot</p></div>
               <div className="stats-grid">
@@ -280,10 +272,8 @@ export default function Dashboard() {
                     </select>
                   </div>
                 </div>
-                {(filterSupervisor || filterRoom || filterStatus) && (
-                  <button onClick={() => { setFilterSupervisor(''); setFilterRoom(''); setFilterStatus(''); }} style={{marginTop:10,background:'none',border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'5px 12px',fontSize:12,color:'rgba(255,255,255,0.4)',fontFamily:'inherit',cursor:'pointer'}}>
-                    Clear filters
-                  </button>
+                {(filterSupervisor||filterRoom||filterStatus) && (
+                  <button onClick={() => {setFilterSupervisor('');setFilterRoom('');setFilterStatus('');}} style={{marginTop:10,background:'none',border:'1px solid rgba(255,255,255,0.08)',borderRadius:6,padding:'5px 12px',fontSize:12,color:'rgba(255,255,255,0.4)',fontFamily:'inherit',cursor:'pointer'}}>Clear filters</button>
                 )}
               </div>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
@@ -292,21 +282,21 @@ export default function Dashboard() {
                   <Calendar onChange={setSelectedDate} value={selectedDate} tileClassName={({date}) => { const d = date.toISOString().split('T')[0]; return slotDates.includes(d) ? 'has-slot' : null; }}/>
                 </div>
                 <div className="card" style={{display:'flex',flexDirection:'column',maxHeight:520,overflow:'hidden'}}>
-                  <h3 style={{flexShrink:0}}>{filterSupervisor || filterRoom || filterStatus ? 'Filtered slots (' + filteredSlots.length + ')' : 'Slots for ' + selectedDate.toLocaleDateString('en-US', {month:'short',day:'numeric'})}</h3>
+                  <h3 style={{flexShrink:0}}>{filterSupervisor||filterRoom||filterStatus ? 'Filtered slots ('+filteredSlots.length+')' : 'Slots for '+selectedDate.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</h3>
                   <div className="slots-scroll" style={{overflowY:'auto',flex:1,paddingRight:4}}>
-                    {filteredSlots.length === 0 && <div className="empty-state">No slots found.<br/>Try different filters or another date.</div>}
+                    {filteredSlots.length===0 && <div className="empty-state">No slots found.<br/>Try different filters or another date.</div>}
                     {filteredSlots.map(slot => (
                       <div className="slot-item" key={slot.id}>
                         <div>
                           <div className="slot-time">{formatTime(slot.start_time)} - {formatTime(slot.end_time)}</div>
                           <div className="slot-room">{slot.room}</div>
                           <div className="slot-supervisor">{slot.supervisor_name}</div>
-                          {slot.status === 'open' && <button className="book-btn" onClick={() => setSelectedSlot(slot)}>Book this slot</button>}
+                          {slot.status==='open' && <button className="book-btn" onClick={() => setSelectedSlot(slot)}>Book this slot</button>}
                         </div>
                         <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:6}}>
-                          <span className={slot.status === 'open' ? 'badge-open' : 'badge-booked'}>{slot.status === 'open' ? 'Open' : 'Booked'}</span>
-                          {slot.status === 'booked' && (() => {
-                            const inWaitlist = myWaitlist.find(w => w.slot_id === slot.id);
+                          <span className={slot.status==='open'?'badge-open':'badge-booked'}>{slot.status==='open'?'Open':'Booked'}</span>
+                          {slot.status==='booked' && (() => {
+                            const inWaitlist = myWaitlist.find(w => w.slot_id===slot.id);
                             return inWaitlist ? (
                               <div style={{textAlign:'right'}}>
                                 <div style={{fontSize:11,color:'rgba(255,255,255,0.4)',marginBottom:4}}>Position #{inWaitlist.position}</div>
@@ -325,12 +315,12 @@ export default function Dashboard() {
             </>
           )}
 
-          {activeTab === 'bookings' && (
+          {activeTab==='bookings' && (
             <>
               <div className="page-header"><h1>My bookings</h1><p>Your scheduled thesis defense slots</p></div>
               <div className="card">
                 <h3>Scheduled defenses</h3>
-                {myBookings.length === 0 && <div className="empty-state">No bookings yet. Go book a slot!</div>}
+                {myBookings.length===0 && <div className="empty-state">No bookings yet. Go book a slot!</div>}
                 {myBookings.map(b => (
                   <div className="booking-item" key={b.id} style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                     <div>
@@ -346,7 +336,7 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-              {myWaitlist.length > 0 && (
+              {myWaitlist.length>0 && (
                 <div className="card" style={{marginTop:16}}>
                   <h3>My waitlist ({myWaitlist.length})</h3>
                   {myWaitlist.map(w => (
@@ -365,9 +355,9 @@ export default function Dashboard() {
             </>
           )}
 
-          {activeTab === 'supervisors' && (
+          {activeTab==='supervisors' && (
             <>
-              <div className="page-header"><h1>Supervisors</h1><p>Available thesis supervisors in your department</p></div>
+              <div className="page-header"><h1>Supervisors</h1><p>Available thesis supervisors</p></div>
               <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill, minmax(280px, 1fr))',gap:16}}>
                 {supervisors.map(sup => (
                   <div className="card" key={sup.id} style={{display:'flex',alignItems:'center',gap:16}}>
@@ -385,7 +375,7 @@ export default function Dashboard() {
             </>
           )}
 
-          {activeTab === 'thesis' && (
+          {activeTab==='thesis' && (
             <>
               <div className="page-header"><h1>My thesis</h1><p>Track your thesis journey from proposal to defense</p></div>
               <div className="card" style={{marginBottom:16}}>
@@ -409,8 +399,8 @@ export default function Dashboard() {
                     const isCompleted = phases[phase.key];
                     const prevPhases = ['proposal','draft','final','defense'].slice(0,index);
                     const canComplete = prevPhases.every(p => phases[p]);
-                    const isDefense = phase.key === 'defense';
-                    const autoDefense = isDefense && myBookings.length > 0;
+                    const isDefense = phase.key==='defense';
+                    const autoDefense = isDefense && myBookings.length>0;
                     return (
                       <div key={phase.key} style={{padding:16,background:isCompleted||autoDefense?'rgba(29,158,117,0.08)':'rgba(255,255,255,0.02)',border:'1px solid '+(isCompleted||autoDefense?'rgba(29,158,117,0.3)':'rgba(255,255,255,0.07)'),borderRadius:12,transition:'all 0.3s ease',position:'relative',overflow:'hidden'}}>
                         {(isCompleted||autoDefense) && <div style={{position:'absolute',top:0,right:0,width:40,height:40,background:'rgba(29,158,117,0.15)',borderRadius:'0 12px 0 40px'}}/>}
@@ -429,8 +419,8 @@ export default function Dashboard() {
                     );
                   })}
                 </div>
-                {myBookings.length > 0 && (() => {
-                  const diffDays = Math.ceil((new Date(myBookings[0].date) - new Date()) / (1000 * 60 * 60 * 24));
+                {myBookings.length>0 && (() => {
+                  const diffDays = Math.ceil((new Date(myBookings[0].date) - new Date()) / (1000*60*60*24));
                   return (
                     <div style={{marginTop:16,padding:16,background:'rgba(29,158,117,0.06)',border:'1px solid rgba(29,158,117,0.15)',borderRadius:10,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                       <div>
@@ -468,6 +458,28 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+
+      {showNotifications && (
+        <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,zIndex:100,background:'rgba(0,0,0,0.5)',backdropFilter:'blur(4px)'}} onClick={() => setShowNotifications(false)}>
+          <div style={{position:'fixed',top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:'90%',maxWidth:360,background:'rgba(20,20,24,0.99)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:14,padding:20,zIndex:101}} onClick={e => e.stopPropagation()}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+              <div style={{fontSize:12,fontWeight:500,color:'rgba(255,255,255,0.4)',letterSpacing:'0.06em'}}>NOTIFICATIONS</div>
+              <button onClick={() => setShowNotifications(false)} style={{background:'none',border:'none',color:'rgba(255,255,255,0.4)',cursor:'pointer',fontSize:16}}>✕</button>
+            </div>
+            {myBookings.length===0 && <div style={{fontSize:13,color:'rgba(255,255,255,0.3)',textAlign:'center',padding:'16px 0'}}>No notifications</div>}
+            {myBookings.map(b => {
+              const diffDays = Math.ceil((new Date(b.date) - new Date()) / (1000*60*60*24));
+              return (
+                <div key={b.id} style={{padding:'10px 12px',background:'rgba(29,158,117,0.06)',border:'1px solid rgba(29,158,117,0.15)',borderRadius:8,marginBottom:8}}>
+                  <div style={{fontSize:13,color:'#f0f0ee',fontWeight:500}}>{diffDays===0?'🔴 Defense TODAY!':diffDays===1?'🟡 Defense TOMORROW!':diffDays>0?'🟢 In '+diffDays+' days':'✅ Completed'}</div>
+                  <div style={{fontSize:11,color:'rgba(255,255,255,0.4)',marginTop:4}}>{formatDate(b.date)} · {formatTime(b.start_time)}</div>
+                  <div style={{fontSize:11,color:'#1D9E75',marginTop:2}}>{b.supervisor_name}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {selectedSlot && (
         <div className="modal-overlay" onClick={() => setSelectedSlot(null)}>
