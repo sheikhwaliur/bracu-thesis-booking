@@ -381,11 +381,11 @@ a { text-decoration: none; color: inherit; }
     .sidebar-logo p { display: none; }
   
     .sidebar-nav {
-      display: flex;
-      flex-direction: row;
-      padding: 4px;
-      flex: 1;
-      gap: 4px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding: 8px;
+      gap: 6px;
+      border-bottom: 1px solid var(--border);
     }
   
     .nav-item {
