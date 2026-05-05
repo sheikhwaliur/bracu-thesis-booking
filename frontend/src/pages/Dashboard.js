@@ -158,6 +158,7 @@ export default function Dashboard() {
         .slots-scroll::-webkit-scrollbar{width:4px}
         .slots-scroll::-webkit-scrollbar-track{background:transparent}
         .slots-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:4px}
+        @keyframes shimmer{0%,100%{opacity:0.3}50%{opacity:1}}
         .nav-btn{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:3px;cursor:pointer;transition:all 0.2s ease;border:1px solid transparent;background:none;width:100%;text-align:left;font-family:inherit;position:relative;overflow:hidden}
         .nav-btn::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:#1D9E75;border-radius:0 2px 2px 0;transform:scaleY(0);transition:transform 0.2s ease}
         .nav-btn:hover{background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.06);transform:translateX(2px)}
@@ -448,10 +449,10 @@ export default function Dashboard() {
         boxShadow:'0 -8px 32px rgba(29,158,117,0.08), 0 -1px 0 rgba(255,255,255,0.04)',
       }}>
         <div style={{
-          position:'absolute', top:0, left:'10%', right:'10%', height:1,
-          background:'linear-gradient(90deg, transparent, #1D9E75, transparent)',
-          animation:'float1 3s ease-in-out infinite',
-          opacity:0.6,
+          position:'absolute', top:-1, left:0, right:0, height:1,
+          background:'linear-gradient(90deg, transparent 0%, #1D9E75 50%, transparent 100%)',
+          animation:'shimmer 2s ease-in-out infinite',
+          opacity:0.8,
         }}/>
         {[
           {id:'slots', label:'Book', icon:'🗓️'},
