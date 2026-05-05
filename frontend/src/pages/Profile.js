@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 export default function Profile() {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
-  const token = localStorage.getItem('token');
-  const navigate = useNavigate();
   const [form, setForm] = useState({
     name: user.name || '',
     department: user.department || 'CSE',
