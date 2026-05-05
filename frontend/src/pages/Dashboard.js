@@ -438,14 +438,21 @@ export default function Dashboard() {
       {/* Mobile Bottom Nav */}
       <div className="mobile-bottom-nav" style={{
         position:'fixed', bottom:0, left:0, right:0, zIndex:50,
-        background:'rgba(10,10,11,0.95)',
-        backdropFilter:'blur(20px)',
-        WebkitBackdropFilter:'blur(20px)',
-        borderTop:'1px solid rgba(255,255,255,0.08)',
+        background:'rgba(10,10,11,0.85)',
+        backdropFilter:'blur(30px)',
+        WebkitBackdropFilter:'blur(30px)',
+        borderTop:'1px solid rgba(29,158,117,0.15)',
         padding:'8px 12px 20px',
         gap:4,
         display:'none',
+        boxShadow:'0 -8px 32px rgba(29,158,117,0.08), 0 -1px 0 rgba(255,255,255,0.04)',
       }}>
+        <div style={{
+          position:'absolute', top:0, left:'10%', right:'10%', height:1,
+          background:'linear-gradient(90deg, transparent, #1D9E75, transparent)',
+          animation:'float1 3s ease-in-out infinite',
+          opacity:0.6,
+        }}/>
         {[
           {id:'slots', label:'Book', icon:'🗓️'},
           {id:'bookings', label:'Bookings', icon:'📋'},
