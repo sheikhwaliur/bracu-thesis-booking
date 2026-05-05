@@ -19,6 +19,7 @@ export default function Dashboard() {
   const [filterRoom, setFilterRoom] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
+  const [booking, setBooking] = useState(false);
   const [thesisInfo, setThesisInfo] = useState(() => {
     const saved = localStorage.getItem('thesisInfo');
     return saved ? JSON.parse(saved) : { title: '', supervisor: '', description: '', phases: {} };
@@ -40,19 +41,24 @@ export default function Dashboard() {
   const fetchSupervisors = async () => { try { const res = await api.get('/supervisors'); setSupervisors(res.data); } catch {} };
   const fetchWaitlist = async () => { try { const res = await api.get('/waitlist/mine'); setMyWaitlist(res.data); } catch {} };
 
+  const [booking, setBooking] = useState(false);
+
   const handleBook = async () => {
     setError('');
+    setBooking(true);
     try {
       await api.post('/bookings', { slot_id: selectedSlot.id, thesis_title: thesisTitle });
-      setMessage('Slot booked successfully!');
       setSelectedSlot(null);
       setThesisTitle('');
       await fetchSlots();
       await fetchMyBookings();
       await fetchWaitlist();
+      setMessage('Slot booked successfully!');
       setTimeout(() => setMessage(''), 4000);
     } catch (err) {
       setError(err.response?.data?.error || 'Booking failed.');
+    } finally {
+      setBooking(false);
     }
   };
 
@@ -541,7 +547,9 @@ export default function Dashboard() {
             </div>
             <div className="modal-actions">
               <button className="btn-cancel" onClick={() => setSelectedSlot(null)}>Cancel</button>
-              <button className="btn-confirm" onClick={handleBook}>Confirm booking</button>
+              <button className="btn-confirm" onClick={handleBook} disabled={booking} style={{opacity: booking ? 0.7 : 1, cursor: booking ? 'not-allowed' : 'pointer'}}>
+                {booking ? '⏳ Booking...' : 'Confirm booking'}
+              </button>
             </div>
           </div>
         </div>
