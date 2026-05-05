@@ -159,6 +159,8 @@ export default function Dashboard() {
         .slots-scroll::-webkit-scrollbar-track{background:transparent}
         .slots-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:4px}
         @keyframes shimmer{0%,100%{opacity:0.3}50%{opacity:1}}
+        .bottom-tab * { -webkit-tap-highlight-color: transparent; }
+        .mobile-bottom-nav button { -webkit-tap-highlight-color: transparent; outline: none; }
         .nav-btn{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:3px;cursor:pointer;transition:all 0.2s ease;border:1px solid transparent;background:none;width:100%;text-align:left;font-family:inherit;position:relative;overflow:hidden}
         .nav-btn::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:#1D9E75;border-radius:0 2px 2px 0;transform:scaleY(0);transition:transform 0.2s ease}
         .nav-btn:hover{background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.06);transform:translateX(2px)}
@@ -464,9 +466,11 @@ export default function Dashboard() {
     const isActive = activeTab===tab.id && tab.id!=='notif';
     return (
       <button key={tab.id}
+        className="bottom-tab"
         onClick={() => tab.id==='notif' ? setShowNotifications(true) : setActiveTab(tab.id)}
         style={{
           flex:1, display:'flex', flexDirection:'column', alignItems:'center',
+          WebkitTapHighlightColor: 'transparent',
           gap:4, padding:'6px 4px', background:'none', border:'none',
           cursor:'pointer', fontFamily:'inherit', position:'relative',
           transform: isActive ? 'translateY(-6px)' : 'translateY(0)',
