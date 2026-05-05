@@ -201,7 +201,7 @@ export default function Dashboard() {
             <button className="nav-item" onClick={() => setShowNotifications(!showNotifications)} style={{position:'relative'}}>
               <span style={{fontSize:14}}>🔔</span> Notifications
               {myBookings.length > 0 && (
-                <span style={{marginLeft:'auto',background:'#1D9E75',borderRadius:'50%',width:18,height:18,fontSize:10,display:'flex',alignItems:'center',justifyContent:'center',color:'white',fontWeight:500,flexShrink:0}}>
+                <span style={{marginLeft:'auto',background:'#1D9E75',borderRadius:'30%',width:18,height:18,fontSize:10,display:'flex',alignItems:'center',justifyContent:'center',color:'white',fontWeight:500,flexShrink:0}}>
                   {myBookings.length}
                 </span>
               )}
