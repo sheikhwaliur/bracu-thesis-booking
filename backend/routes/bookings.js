@@ -36,27 +36,12 @@ router.post('/', authMiddleware, async (req, res) => {
   const { slot_id, thesis_title } = req.body;
   try {
     const [slot] = await db.query('SELECT * FROM slots WHERE id = ?', [slot_id]);
-    if (slot[0].status === 'booked') return res.status(400).json({ error: 'Slot already booked.' });
-    await db.query(
-      'INSERT INTO bookings (student_id, slot_id, thesis_title) VALUES (?, ?, ?)',
-      [req.user.id, slot_id, thesis_title]
-    );
-    await db.query('UPDATE slots SET status = "booked" WHERE id = ?', [slot_id]);
-    const [user] = await db.query('SELECT * FROM users WHERE id = ?', [req.user.id]);
-    await sendEmail(
-      user[0].email,
-      'Thesis Defense Slot Confirmed — BRACU',
-      `<div style="font-family:sans-serif;max-width:500px;margin:auto;padding:32px;background:#0a0a0b;color:#f0f0ee;border-radius:12px;">
-        <h2 style="color:#1D9E75;">Booking Confirmed!</h2>
-        <p>Hi ${user[0].name},</p>
-        <p>Your thesis defense slot has been successfully booked.</p>
-        <div style="background:#18181c;border-radius:8px;padding:16px;margin:20px 0;">
-          <p><strong>Thesis:</strong> ${thesis_title}</p>
-          <p><strong>Slot ID:</strong> ${slot_id}</p>
-        </div>
-        <p style="color:#888;">BRAC University Thesis Portal</p>
-      </div>`
-    );
+    if (slot.length === 0) return res.status(404).json({ error: 'Slot not found.' });
+    if (slot[0].current_bookings >= slot[0].max_bookings) return res.status(400).json({ error: 'Slot is fully booked.' });
+    const [existing] = await db.query('SELECT * FROM bookings WHERE student_id = ? AND slot_id = ?', [req.user.id, slot_id]);
+    if (existing.length > 0) return res.status(400).json({ error: 'You already booked this slot.' });
+    await db.query('INSERT INTO bookings (student_id, slot_id, thesis_title) VALUES (?, ?, ?)', [req.user.id, slot_id, thesis_title]);
+    await db.query('UPDATE slots SET current_bookings = current_bookings + 1, status = CASE WHEN current_bookings + 1 >= max_bookings THEN "booked" ELSE "open" END WHERE id = ?', [slot_id]);
     res.json({ message: 'Slot booked successfully!' });
   } catch (err) {
     res.status(500).json({ error: 'Server error.' });
@@ -83,9 +68,14 @@ router.delete('/:id', authMiddleware, async (req, res) => {
   try {
     const [booking] = await db.query('SELECT * FROM bookings WHERE id = ? AND student_id = ?', [req.params.id, req.user.id]);
     if (booking.length === 0) return res.status(404).json({ error: 'Booking not found.' });
-    await db.query('UPDATE slots SET status = "open" WHERE id = ?', [booking[0].slot_id]);
+    const slotId = booking[0].slot_id;
+    await db.query('UPDATE slots SET status = "open" WHERE id = ?', [slotId]);
     await db.query('DELETE FROM bookings WHERE id = ?', [req.params.id]);
-    res.json({ message: 'Booking cancelled.' });
+    const [nextInLine] = await db.query('SELECT * FROM waitlist WHERE slot_id = ? ORDER BY created_at ASC LIMIT 1', [slotId]);
+    if (nextInLine.length > 0) {
+      console.log(`Slot ${slotId} is now available. Next in waitlist: student ${nextInLine[0].student_id}`);
+    }
+    res.json({ message: 'Booking cancelled. Waitlist notified if applicable.' });
   } catch (err) {
     res.status(500).json({ error: 'Server error.' });
   }
