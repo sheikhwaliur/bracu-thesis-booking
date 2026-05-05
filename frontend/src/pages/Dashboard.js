@@ -207,7 +207,7 @@ export default function Dashboard() {
               <div><p>{user.name}</p><span>{user.student_id} · {user.role==='admin'?'Admin':'Student'}</span></div>
             </div>
           </div>
-          <button className="logout-btn desktop-only" onClick={logout}>Sign out</button>
+         
         </div>
 
         <div className="main-content" style={{animation:'fadeUp 0.5s ease 0.1s both'}}>
