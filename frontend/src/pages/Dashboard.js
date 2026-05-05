@@ -163,8 +163,6 @@ export default function Dashboard() {
         .nav-btn:hover{background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.06);transform:translateX(2px)}
         .nav-btn.active{background:rgba(29,158,117,0.08);color:#1D9E75;border-color:rgba(29,158,117,0.2);font-weight:500;transform:translateX(2px)}
         .nav-btn.active::before{transform:scaleY(1)}
-        .nav-btn .nav-icon{font-size:15px;transition:transform 0.2s ease}
-        .nav-btn:hover .nav-icon,.nav-btn.active .nav-icon{transform:scale(1.15)}
       `}</style>
 
       <div style={{position:'fixed',top:'-20%',left:'-10%',width:600,height:600,background:'radial-gradient(circle,rgba(29,158,117,0.07) 0%,transparent 70%)',borderRadius:'50%',pointerEvents:'none',zIndex:0,animation:'float1 8s ease-in-out infinite'}}/>
@@ -174,20 +172,26 @@ export default function Dashboard() {
 
       <div className="app-layout" style={{position:'relative',zIndex:1}}>
         <div className="sidebar">
-          <div className="sidebar-logo"><h2>BRACU Thesis</h2><p>Slot Booking Portal</p></div>
+          <div className="sidebar-logo">
+            <div>
+              <h2>BRACU Thesis</h2>
+              <p>Slot Booking Portal</p>
+            </div>
+            <button className="logout-btn mobile-only" onClick={logout}>Sign out</button>
+          </div>
           <div className="sidebar-nav">
-          {[
-            {id:'slots', label:'Book a slot'},
-            {id:'bookings', label:'My bookings'},
-            {id:'supervisors', label:'Supervisors'},
-            {id:'thesis', label:'My thesis'},
-           ].map(tab => (
-            <button key={tab.id} className={'nav-btn ' + (activeTab===tab.id ? 'active' : '')} onClick={() => setActiveTab(tab.id)}>
-              {tab.label}
-            </button>
-          ))}
-          <button className={'nav-btn ' + (showNotifications ? 'active' : '')} onClick={() => setShowNotifications(!showNotifications)} style={{color:showNotifications?'#f87171':'rgba(255,255,255,0.5)'}}>
-            Notifications
+            {[
+              {id:'slots', label:'Book a slot'},
+              {id:'bookings', label:'My bookings'},
+              {id:'supervisors', label:'Supervisors'},
+              {id:'thesis', label:'My thesis'},
+            ].map(tab => (
+              <button key={tab.id} className={'nav-btn ' + (activeTab===tab.id ? 'active' : '')} onClick={() => setActiveTab(tab.id)}>
+                {tab.label}
+              </button>
+            ))}
+            <button className={'nav-btn ' + (showNotifications ? 'active' : '')} onClick={() => setShowNotifications(!showNotifications)} style={{color:showNotifications?'#f87171':'rgba(255,255,255,0.5)'}}>
+              Notifications
               {myBookings.length > 0 && (
                 <span style={{marginLeft:'auto',background:'#f87171',borderRadius:'50%',width:16,height:16,fontSize:9,display:'flex',alignItems:'center',justifyContent:'center',color:'white',fontWeight:600,flexShrink:0}}>
                   {myBookings.length}
@@ -195,7 +199,7 @@ export default function Dashboard() {
               )}
             </button>
           </div>
-          <div className="sidebar-user" onClick={() => navigate('/profile')} style={{cursor:'pointer'}}>
+          <div className="sidebar-user desktop-only" onClick={() => navigate('/profile')} style={{cursor:'pointer'}}>
             <div style={{display:'flex',alignItems:'center',gap:10}}>
               <div style={{width:32,height:32,borderRadius:'50%',background:'rgba(29,158,117,0.1)',border:'1px solid rgba(29,158,117,0.2)',overflow:'hidden',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,color:'#1D9E75',flexShrink:0}}>
                 {localStorage.getItem('avatar') ? <img src={localStorage.getItem('avatar')} alt="avatar" style={{width:'100%',height:'100%',objectFit:'cover'}}/> : user.name && user.name.charAt(0)}
@@ -203,7 +207,7 @@ export default function Dashboard() {
               <div><p>{user.name}</p><span>{user.student_id} · {user.role==='admin'?'Admin':'Student'}</span></div>
             </div>
           </div>
-          <button className="logout-btn" onClick={logout}>Sign out</button>
+          <button className="logout-btn desktop-only" onClick={logout}>Sign out</button>
         </div>
 
         <div className="main-content" style={{animation:'fadeUp 0.5s ease 0.1s both'}}>
@@ -429,6 +433,58 @@ export default function Dashboard() {
             </>
           )}
         </div>
+      </div>
+
+      {/* Mobile Bottom Nav */}
+      <div className="mobile-bottom-nav" style={{
+        position:'fixed', bottom:0, left:0, right:0, zIndex:50,
+        background:'rgba(10,10,11,0.95)',
+        backdropFilter:'blur(20px)',
+        WebkitBackdropFilter:'blur(20px)',
+        borderTop:'1px solid rgba(255,255,255,0.08)',
+        padding:'8px 12px 20px',
+        gap:4,
+        display:'none',
+      }}>
+        {[
+          {id:'slots', label:'Book', icon:'🗓️'},
+          {id:'bookings', label:'Bookings', icon:'📋'},
+          {id:'supervisors', label:'Supervisors', icon:'🎓'},
+          {id:'thesis', label:'Thesis', icon:'📝'},
+          {id:'notif', label:'Alerts', icon:'🔔'},
+        ].map(tab => (
+          <button key={tab.id}
+            onClick={() => tab.id==='notif' ? setShowNotifications(true) : setActiveTab(tab.id)}
+            style={{
+              flex:1, display:'flex', flexDirection:'column', alignItems:'center',
+              gap:4, padding:'6px 4px', background:'none', border:'none',
+              cursor:'pointer', fontFamily:'inherit', position:'relative',
+              transition:'all 0.2s ease',
+            }}>
+            <div style={{
+              width:32, height:32, borderRadius:10, display:'flex',
+              alignItems:'center', justifyContent:'center', fontSize:18,
+              background: (activeTab===tab.id && tab.id!=='notif') ? 'rgba(29,158,117,0.15)' : 'transparent',
+              transition:'all 0.2s ease',
+            }}>
+              {tab.icon}
+              {tab.id==='notif' && myBookings.length>0 && (
+                <span style={{position:'absolute',top:2,right:'50%',marginRight:-20,background:'#f87171',borderRadius:'50%',width:14,height:14,fontSize:9,display:'flex',alignItems:'center',justifyContent:'center',color:'white',fontWeight:600}}>
+                  {myBookings.length}
+                </span>
+              )}
+            </div>
+            <span style={{
+              fontSize:10,
+              color: activeTab===tab.id && tab.id!=='notif' ? '#1D9E75' : 'rgba(255,255,255,0.4)',
+              fontWeight: activeTab===tab.id && tab.id!=='notif' ? 500 : 400,
+              transition:'color 0.2s',
+            }}>{tab.label}</span>
+            {activeTab===tab.id && tab.id!=='notif' && (
+              <div style={{position:'absolute',top:0,left:'50%',transform:'translateX(-50%)',width:20,height:2,background:'#1D9E75',borderRadius:99}}/>
+            )}
+          </button>
+        ))}
       </div>
 
       {showNotifications && (
