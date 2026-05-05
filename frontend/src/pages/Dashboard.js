@@ -177,17 +177,17 @@ export default function Dashboard() {
           <div className="sidebar-logo"><h2>BRACU Thesis</h2><p>Slot Booking Portal</p></div>
           <div className="sidebar-nav">
             {[
-              {id:'slots', label:'Book a slot', icon:'🗓️'},
-              {id:'bookings', label:'My bookings', icon:'✅'},
-              {id:'supervisors', label:'Supervisors', icon:'🎓'},
-              {id:'thesis', label:'My thesis', icon:'🔬'},
+              {id:'slots', label:'Book a slot', icon:'📅'},
+              {id:'bookings', label:'My bookings', icon:'📋'},
+              {id:'supervisors', label:'Supervisors', icon:'👨‍🏫'},
+              {id:'thesis', label:'My thesis', icon:'📝'},
             ].map(tab => (
               <button key={tab.id} className={'nav-btn ' + (activeTab===tab.id ? 'active' : '')} onClick={() => setActiveTab(tab.id)}>
                 <span className="nav-icon">{tab.icon}</span> {tab.label}
               </button>
             ))}
             <button className={'nav-btn ' + (showNotifications ? 'active' : '')} onClick={() => setShowNotifications(!showNotifications)} style={{color:showNotifications?'#f87171':'rgba(255,255,255,0.5)'}}>
-              <span className="nav-icon">🔔</span> Alerts
+            <span className="nav-icon">🔔</span> Notifications
               {myBookings.length > 0 && (
                 <span style={{marginLeft:'auto',background:'#f87171',borderRadius:'50%',width:16,height:16,fontSize:9,display:'flex',alignItems:'center',justifyContent:'center',color:'white',fontWeight:600,flexShrink:0}}>
                   {myBookings.length}
