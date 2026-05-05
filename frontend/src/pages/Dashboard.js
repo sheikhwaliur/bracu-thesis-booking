@@ -177,6 +177,7 @@ export default function Dashboard() {
         .slots-scroll::-webkit-scrollbar{width:4px}
         .slots-scroll::-webkit-scrollbar-track{background:transparent}
         .slots-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:4px}
+        @media (max-width: 768px) { .notif-bell { top: auto !important; bottom: 20px !important; right: 16px !important; } }
       `}</style>
 
       <div style={{position:'fixed',top:'-20%',left:'-10%',width:600,height:600,background:'radial-gradient(circle,rgba(29,158,117,0.07) 0%,transparent 70%)',borderRadius:'50%',pointerEvents:'none',zIndex:0,animation:'float1 8s ease-in-out infinite'}}/>
@@ -184,7 +185,7 @@ export default function Dashboard() {
       <div style={{position:'fixed',top:'40%',right:'15%',width:350,height:350,background:'radial-gradient(circle,rgba(29,158,117,0.04) 0%,transparent 70%)',borderRadius:'50%',pointerEvents:'none',zIndex:0,animation:'float1 12s ease-in-out infinite reverse'}}/>
       <div style={{position:'fixed',inset:0,backgroundImage:'linear-gradient(rgba(255,255,255,0.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.015) 1px,transparent 1px)',backgroundSize:'48px 48px',pointerEvents:'none',zIndex:0}}/>
 
-      <div style={{position:'fixed',top:20,right:24,zIndex:50}}>
+      <div className="notif-bell" style={{position:'fixed',top:20,right:24,zIndex:50}}>
         <button onClick={() => setShowNotifications(!showNotifications)} style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:10,padding:'8px 12px',color:'#f0f0ee',fontFamily:'inherit',cursor:'pointer',fontSize:16,position:'relative'}}>
           🔔
           {myBookings.length > 0 && <span style={{position:'absolute',top:-4,right:-4,background:'#1D9E75',borderRadius:'50%',width:16,height:16,fontSize:10,display:'flex',alignItems:'center',justifyContent:'center',color:'white',fontWeight:500}}>{myBookings.length}</span>}
