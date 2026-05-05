@@ -40,8 +40,7 @@ export default function Dashboard() {
   const fetchMyBookings = async () => { try { const res = await api.get('/bookings/mine'); setMyBookings(res.data); } catch {} };
   const fetchSupervisors = async () => { try { const res = await api.get('/supervisors'); setSupervisors(res.data); } catch {} };
   const fetchWaitlist = async () => { try { const res = await api.get('/waitlist/mine'); setMyWaitlist(res.data); } catch {} };
-
-  const [booking, setBooking] = useState(false);
+  
 
   const handleBook = async () => {
     setError('');
