@@ -7,6 +7,7 @@ import 'react-calendar/dist/Calendar.css';
 export default function Dashboard() {
   const [slots, setSlots] = useState([]);
   const [myBookings, setMyBookings] = useState([]);
+  const [myWaitlist, setMyWaitlist] = useState([]);
   const [supervisors, setSupervisors] = useState([]);
   const [activeTab, setActiveTab] = useState('slots');
   const [selectedSlot, setSelectedSlot] = useState(null);
@@ -29,7 +30,7 @@ export default function Dashboard() {
   });
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { fetchSlots(); fetchMyBookings(); fetchSupervisors(); }, []);
+  useEffect(() => { fetchSlots(); fetchMyBookings(); fetchSupervisors(); fetchWaitlist(); }, []);
 
   const fetchSlots = async () => {
     try { const res = await api.get('/slots'); setSlots(res.data); } catch {}
@@ -43,11 +44,15 @@ export default function Dashboard() {
     try { const res = await api.get('/supervisors'); setSupervisors(res.data); } catch {}
   };
 
+  const fetchWaitlist = async () => {
+    try { const res = await api.get('/waitlist/mine'); setMyWaitlist(res.data); } catch {}
+  };
+
   const handleBook = async () => {
     setError('');
     try {
       await api.post('/bookings', { slot_id: selectedSlot.id, thesis_title: thesisTitle });
-      setMessage('Slot booked! A confirmation email has been sent.');
+      setMessage('Slot booked successfully!');
       setSelectedSlot(null);
       setThesisTitle('');
       fetchSlots();
@@ -65,9 +70,33 @@ export default function Dashboard() {
       setMessage('Booking cancelled.');
       fetchSlots();
       fetchMyBookings();
+      fetchWaitlist();
       setTimeout(() => setMessage(''), 3000);
     } catch {
       setError('Could not cancel booking.');
+    }
+  };
+
+  const joinWaitlist = async (slotId) => {
+    setError('');
+    try {
+      const res = await api.post('/waitlist', { slot_id: slotId });
+      setMessage(`Added to waitlist! Your position: #${res.data.position}`);
+      fetchWaitlist();
+      setTimeout(() => setMessage(''), 4000);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Could not join waitlist.');
+    }
+  };
+
+  const leaveWaitlist = async (slotId) => {
+    try {
+      await api.delete(`/waitlist/${slotId}`);
+      setMessage('Removed from waitlist.');
+      fetchWaitlist();
+      setTimeout(() => setMessage(''), 3000);
+    } catch {
+      setError('Could not leave waitlist.');
     }
   };
 
@@ -85,7 +114,6 @@ export default function Dashboard() {
       doc.setDrawColor(29, 158, 117);
       doc.line(20, 50, 190, 50);
       doc.setFontSize(11);
-      doc.setTextColor(136, 136, 132);
       const labels = ['Student Name', 'Student ID', 'Thesis Title', 'Defense Date', 'Time', 'Room', 'Supervisor'];
       const values = [
         user.name || '',
@@ -217,10 +245,10 @@ export default function Dashboard() {
           </div>
           <div className="sidebar-nav">
             {[
-              {id:'slots',label:'Book a slot',icon:'📅'},
-              {id:'bookings',label:'My bookings',icon:'📋'},
-              {id:'supervisors',label:'Supervisors',icon:'👨‍🏫'},
-              {id:'thesis',label:'My thesis',icon:'📝'},
+              {id:'slots', label:'Book a slot', icon:'📅'},
+              {id:'bookings', label:'My bookings', icon:'📋'},
+              {id:'supervisors', label:'Supervisors', icon:'👨‍🏫'},
+              {id:'thesis', label:'My thesis', icon:'📝'},
             ].map(tab => (
               <button key={tab.id}
                 className={`nav-item ${activeTab === tab.id ? 'active' : ''}`}
@@ -313,7 +341,7 @@ export default function Dashboard() {
                   <h3>
                     {filterSupervisor || filterRoom || filterStatus
                       ? `Filtered slots (${filteredSlots.length})`
-                      : `Slots for ${selectedDate.toLocaleDateString('en-US', {month:'short',day:'numeric'})}`}
+                      : `Slots for ${selectedDate.toLocaleDateString('en-US', {month:'short', day:'numeric'})}`}
                   </h3>
                   {filteredSlots.length === 0 && <div className="empty-state">No slots found.<br/>Try different filters or another date.</div>}
                   {filteredSlots.map(slot => (
@@ -326,9 +354,28 @@ export default function Dashboard() {
                           <button className="book-btn" onClick={() => setSelectedSlot(slot)}>Book this slot</button>
                         )}
                       </div>
-                      <span className={slot.status === 'open' ? 'badge-open' : 'badge-booked'}>
-                        {slot.status === 'open' ? 'Open' : 'Booked'}
-                      </span>
+                      <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:6}}>
+                        <span className={slot.status === 'open' ? 'badge-open' : 'badge-booked'}>
+                          {slot.status === 'open' ? 'Open' : 'Booked'}
+                        </span>
+                        {slot.status === 'booked' && (() => {
+                          const inWaitlist = myWaitlist.find(w => w.slot_id === slot.id);
+                          return inWaitlist ? (
+                            <div style={{textAlign:'right'}}>
+                              <div style={{fontSize:11,color:'rgba(255,255,255,0.4)',marginBottom:4}}>Position #{inWaitlist.position}</div>
+                              <button onClick={() => leaveWaitlist(slot.id)}
+                                style={{background:'rgba(220,50,50,0.08)',border:'1px solid rgba(220,50,50,0.2)',color:'#f87171',borderRadius:6,padding:'4px 10px',fontSize:11,fontFamily:'inherit',cursor:'pointer'}}>
+                                Leave waitlist
+                              </button>
+                            </div>
+                          ) : (
+                            <button onClick={() => joinWaitlist(slot.id)}
+                              style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.1)',color:'rgba(255,255,255,0.6)',borderRadius:6,padding:'4px 10px',fontSize:11,fontFamily:'inherit',cursor:'pointer'}}>
+                              Join waitlist
+                            </button>
+                          );
+                        })()}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -367,6 +414,29 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
+
+              {/* Waitlist */}
+              {myWaitlist.length > 0 && (
+                <div className="card" style={{marginTop:16}}>
+                  <h3>My waitlist ({myWaitlist.length})</h3>
+                  {myWaitlist.map(w => (
+                    <div key={w.id} className="booking-item" style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                      <div>
+                        <div className="booking-date">{formatDate(w.date)}</div>
+                        <div className="booking-detail">{formatTime(w.start_time)} – {formatTime(w.end_time)} · {w.room}</div>
+                        <div className="booking-supervisor">{w.supervisor_name}</div>
+                        <div style={{fontSize:11,color:'rgba(255,255,255,0.3)',marginTop:3}}>
+                          Waitlist position: <strong style={{color:'#1D9E75'}}>#{w.position}</strong>
+                        </div>
+                      </div>
+                      <button onClick={() => leaveWaitlist(w.slot_id)}
+                        style={{background:'rgba(220,50,50,0.08)',border:'1px solid rgba(220,50,50,0.2)',color:'#f87171',borderRadius:8,padding:'6px 14px',fontSize:12,fontFamily:'inherit',cursor:'pointer',flexShrink:0}}>
+                        Leave
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </>
           )}
 
