@@ -133,39 +133,6 @@ export default function Dashboard() {
   const phaseCount = Object.values(phases).filter(Boolean).length + (myBookings.length > 0 ? 1 : 0);
   const progressPct = Math.min(Math.round((phaseCount / 4) * 100), 100);
 
-  const navTabs = [
-    {id:'slots', label:'Book a slot', icon:'🗓️', color:'#1D9E75'},
-    {id:'bookings', label:'My bookings', icon:'✅', color:'#3b82f6'},
-    {id:'supervisors', label:'Supervisors', icon:'🎓', color:'#8b5cf6'},
-    {id:'thesis', label:'My thesis', icon:'🔬', color:'#f59e0b'},
-  ];
-
-  const NavTab = ({tab}) => (
-    <button onClick={() => setActiveTab(tab.id)} style={{
-      display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
-      gap:6, padding:'12px 8px', width:'100%',
-      background: activeTab===tab.id ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.02)',
-      border: activeTab===tab.id ? '1px solid '+tab.color+'55' : '1px solid rgba(255,255,255,0.06)',
-      borderRadius:12, cursor:'pointer', fontFamily:'inherit',
-      transition:'all 0.2s ease',
-      transform: activeTab===tab.id ? 'translateY(-1px)' : 'none',
-      boxShadow: activeTab===tab.id ? '0 4px 12px '+tab.color+'22' : 'none',
-    }}>
-      <div style={{
-        width:36, height:36, borderRadius:10,
-        background: activeTab===tab.id ? tab.color+'22' : 'rgba(255,255,255,0.04)',
-        display:'flex', alignItems:'center', justifyContent:'center',
-        fontSize:18, transition:'all 0.2s ease',
-        border: activeTab===tab.id ? '1px solid '+tab.color+'44' : '1px solid rgba(255,255,255,0.06)',
-      }}>{tab.icon}</div>
-      <span style={{
-        fontSize:10, fontWeight: activeTab===tab.id ? 500 : 400,
-        color: activeTab===tab.id ? tab.color : 'rgba(255,255,255,0.4)',
-        transition:'color 0.2s', textAlign:'center', lineHeight:1.3,
-      }}>{tab.label}</span>
-    </button>
-  );
-
   return (
     <div style={{position:'relative', minHeight:'100vh', background:'#0a0a0b', overflow:'hidden'}}>
       <style>{`
@@ -191,6 +158,13 @@ export default function Dashboard() {
         .slots-scroll::-webkit-scrollbar{width:4px}
         .slots-scroll::-webkit-scrollbar-track{background:transparent}
         .slots-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:4px}
+        .nav-btn{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:3px;cursor:pointer;transition:all 0.2s ease;border:1px solid transparent;background:none;width:100%;text-align:left;font-family:inherit;position:relative;overflow:hidden}
+        .nav-btn::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:#1D9E75;border-radius:0 2px 2px 0;transform:scaleY(0);transition:transform 0.2s ease}
+        .nav-btn:hover{background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.8);border-color:rgba(255,255,255,0.06);transform:translateX(2px)}
+        .nav-btn.active{background:rgba(29,158,117,0.08);color:#1D9E75;border-color:rgba(29,158,117,0.2);font-weight:500;transform:translateX(2px)}
+        .nav-btn.active::before{transform:scaleY(1)}
+        .nav-btn .nav-icon{font-size:15px;transition:transform 0.2s ease}
+        .nav-btn:hover .nav-icon,.nav-btn.active .nav-icon{transform:scale(1.15)}
       `}</style>
 
       <div style={{position:'fixed',top:'-20%',left:'-10%',width:600,height:600,background:'radial-gradient(circle,rgba(29,158,117,0.07) 0%,transparent 70%)',borderRadius:'50%',pointerEvents:'none',zIndex:0,animation:'float1 8s ease-in-out infinite'}}/>
@@ -202,25 +176,23 @@ export default function Dashboard() {
         <div className="sidebar">
           <div className="sidebar-logo"><h2>BRACU Thesis</h2><p>Slot Booking Portal</p></div>
           <div className="sidebar-nav">
-            {navTabs.map(tab => <NavTab key={tab.id} tab={tab}/>)}
-            <button onClick={() => setShowNotifications(!showNotifications)} style={{
-              display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
-              gap:6, padding:'12px 8px', width:'100%',
-              background: showNotifications ? 'rgba(248,113,113,0.08)' : 'rgba(255,255,255,0.02)',
-              border: showNotifications ? '1px solid rgba(248,113,113,0.4)' : '1px solid rgba(255,255,255,0.06)',
-              borderRadius:12, cursor:'pointer', fontFamily:'inherit', transition:'all 0.2s ease',
-              transform: showNotifications ? 'translateY(-1px)' : 'none',
-            }}>
-              <div style={{
-                width:36, height:36, borderRadius:10, position:'relative',
-                background: showNotifications ? 'rgba(248,113,113,0.15)' : 'rgba(255,255,255,0.04)',
-                display:'flex', alignItems:'center', justifyContent:'center', fontSize:18,
-                border: showNotifications ? '1px solid rgba(248,113,113,0.3)' : '1px solid rgba(255,255,255,0.06)',
-              }}>
-                🔔
-                {myBookings.length > 0 && <span style={{position:'absolute',top:-4,right:-4,background:'#f87171',borderRadius:'50%',width:14,height:14,fontSize:9,display:'flex',alignItems:'center',justifyContent:'center',color:'white',fontWeight:600}}>{myBookings.length}</span>}
-              </div>
-              <span style={{fontSize:10,color:showNotifications?'#f87171':'rgba(255,255,255,0.4)',transition:'color 0.2s'}}>Alerts</span>
+            {[
+              {id:'slots', label:'Book a slot', icon:'🗓️'},
+              {id:'bookings', label:'My bookings', icon:'✅'},
+              {id:'supervisors', label:'Supervisors', icon:'🎓'},
+              {id:'thesis', label:'My thesis', icon:'🔬'},
+            ].map(tab => (
+              <button key={tab.id} className={'nav-btn ' + (activeTab===tab.id ? 'active' : '')} onClick={() => setActiveTab(tab.id)}>
+                <span className="nav-icon">{tab.icon}</span> {tab.label}
+              </button>
+            ))}
+            <button className={'nav-btn ' + (showNotifications ? 'active' : '')} onClick={() => setShowNotifications(!showNotifications)} style={{color:showNotifications?'#f87171':'rgba(255,255,255,0.5)'}}>
+              <span className="nav-icon">🔔</span> Alerts
+              {myBookings.length > 0 && (
+                <span style={{marginLeft:'auto',background:'#f87171',borderRadius:'50%',width:16,height:16,fontSize:9,display:'flex',alignItems:'center',justifyContent:'center',color:'white',fontWeight:600,flexShrink:0}}>
+                  {myBookings.length}
+                </span>
+              )}
             </button>
           </div>
           <div className="sidebar-user" onClick={() => navigate('/profile')} style={{cursor:'pointer'}}>
