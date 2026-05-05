@@ -177,7 +177,6 @@ export default function Dashboard() {
         .slots-scroll::-webkit-scrollbar{width:4px}
         .slots-scroll::-webkit-scrollbar-track{background:transparent}
         .slots-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:4px}
-        @media (max-width: 768px) { .notif-bell { position: fixed !important; top: 8px !important; right: 8px !important; bottom: auto !important; } }
       `}</style>
 
       <div style={{position:'fixed',top:'-20%',left:'-10%',width:600,height:600,background:'radial-gradient(circle,rgba(29,158,117,0.07) 0%,transparent 70%)',borderRadius:'50%',pointerEvents:'none',zIndex:0,animation:'float1 8s ease-in-out infinite'}}/>
@@ -185,38 +184,43 @@ export default function Dashboard() {
       <div style={{position:'fixed',top:'40%',right:'15%',width:350,height:350,background:'radial-gradient(circle,rgba(29,158,117,0.04) 0%,transparent 70%)',borderRadius:'50%',pointerEvents:'none',zIndex:0,animation:'float1 12s ease-in-out infinite reverse'}}/>
       <div style={{position:'fixed',inset:0,backgroundImage:'linear-gradient(rgba(255,255,255,0.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.015) 1px,transparent 1px)',backgroundSize:'48px 48px',pointerEvents:'none',zIndex:0}}/>
 
-      <div className="notif-bell" style={{position:'fixed',top:16,right:16,zIndex:50}}>
-        <button onClick={() => setShowNotifications(!showNotifications)} style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:10,padding:'8px 12px',color:'#f0f0ee',fontFamily:'inherit',cursor:'pointer',fontSize:16,position:'relative'}}>
-          🔔
-          {myBookings.length > 0 && <span style={{position:'absolute',top:-4,right:-4,background:'#1D9E75',borderRadius:'50%',width:16,height:16,fontSize:10,display:'flex',alignItems:'center',justifyContent:'center',color:'white',fontWeight:500}}>{myBookings.length}</span>}
-        </button>
-        {showNotifications && (
-          <div style={{position:'absolute',right:0,top:44,width:300,background:'rgba(20,20,24,0.98)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:12,padding:16,backdropFilter:'blur(20px)'}}>
-            <div style={{fontSize:12,fontWeight:500,color:'rgba(255,255,255,0.4)',marginBottom:12,letterSpacing:'0.06em'}}>NOTIFICATIONS</div>
-            {myBookings.length === 0 && <div style={{fontSize:13,color:'rgba(255,255,255,0.3)',textAlign:'center',padding:'16px 0'}}>No notifications</div>}
-            {myBookings.map(b => {
-              const diffDays = Math.ceil((new Date(b.date) - new Date()) / (1000 * 60 * 60 * 24));
-              return (
-                <div key={b.id} style={{padding:'10px 12px',background:'rgba(29,158,117,0.06)',border:'1px solid rgba(29,158,117,0.15)',borderRadius:8,marginBottom:8}}>
-                  <div style={{fontSize:13,color:'#f0f0ee',fontWeight:500}}>{diffDays === 0 ? '🔴 Defense is TODAY!' : diffDays === 1 ? '🟡 Defense is TOMORROW!' : diffDays > 0 ? '🟢 Defense in ' + diffDays + ' days' : '✅ Defense completed'}</div>
-                  <div style={{fontSize:11,color:'rgba(255,255,255,0.4)',marginTop:4}}>{formatDate(b.date)} · {formatTime(b.start_time)}</div>
-                  <div style={{fontSize:11,color:'#1D9E75',marginTop:2}}>{b.supervisor_name}</div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
       <div className="app-layout" style={{position:'relative',zIndex:1}}>
         <div className="sidebar">
           <div className="sidebar-logo"><h2>BRACU Thesis</h2><p>Slot Booking Portal</p></div>
           <div className="sidebar-nav">
-            {[{id:'slots',label:'Book a slot',icon:'📅'},{id:'bookings',label:'My bookings',icon:'📋'},{id:'supervisors',label:'Supervisors',icon:'👨‍🏫'},{id:'thesis',label:'My thesis',icon:'📝'}].map(tab => (
+            {[
+              {id:'slots',label:'Book a slot',icon:'📅'},
+              {id:'bookings',label:'My bookings',icon:'📋'},
+              {id:'supervisors',label:'Supervisors',icon:'👨‍🏫'},
+              {id:'thesis',label:'My thesis',icon:'📝'},
+            ].map(tab => (
               <button key={tab.id} className={'nav-item ' + (activeTab === tab.id ? 'active' : '')} onClick={() => setActiveTab(tab.id)}>
                 <span style={{fontSize:14}}>{tab.icon}</span> {tab.label}
               </button>
             ))}
+            <button className="nav-item" onClick={() => setShowNotifications(!showNotifications)} style={{position:'relative'}}>
+              <span style={{fontSize:14}}>🔔</span> Notifications
+              {myBookings.length > 0 && (
+                <span style={{marginLeft:'auto',background:'#1D9E75',borderRadius:'50%',width:18,height:18,fontSize:10,display:'flex',alignItems:'center',justifyContent:'center',color:'white',fontWeight:500,flexShrink:0}}>
+                  {myBookings.length}
+                </span>
+              )}
+            </button>
+            {showNotifications && (
+              <div style={{margin:'4px 8px',background:'rgba(20,20,24,0.98)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:10,padding:12}}>
+                {myBookings.length === 0 && <div style={{fontSize:12,color:'rgba(255,255,255,0.3)',textAlign:'center',padding:'8px 0'}}>No notifications</div>}
+                {myBookings.map(b => {
+                  const diffDays = Math.ceil((new Date(b.date) - new Date()) / (1000 * 60 * 60 * 24));
+                  return (
+                    <div key={b.id} style={{padding:'8px 10px',background:'rgba(29,158,117,0.06)',border:'1px solid rgba(29,158,117,0.15)',borderRadius:8,marginBottom:6}}>
+                      <div style={{fontSize:12,color:'#f0f0ee',fontWeight:500}}>{diffDays===0?'🔴 Defense TODAY!':diffDays===1?'🟡 Defense TOMORROW!':diffDays>0?'🟢 In '+diffDays+' days':'✅ Completed'}</div>
+                      <div style={{fontSize:11,color:'rgba(255,255,255,0.4)',marginTop:3}}>{formatDate(b.date)} · {formatTime(b.start_time)}</div>
+                      <div style={{fontSize:11,color:'#1D9E75',marginTop:2}}>{b.supervisor_name}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
           <div className="sidebar-user" onClick={() => navigate('/profile')} style={{cursor:'pointer'}}>
             <div style={{display:'flex',alignItems:'center',gap:10}}>
@@ -375,7 +379,6 @@ export default function Dashboard() {
           {activeTab === 'thesis' && (
             <>
               <div className="page-header"><h1>My thesis</h1><p>Track your thesis journey from proposal to defense</p></div>
-
               <div className="card" style={{marginBottom:16}}>
                 <h3>Defense progress</h3>
                 <div style={{marginBottom:20}}>
@@ -433,7 +436,6 @@ export default function Dashboard() {
                   );
                 })()}
               </div>
-
               <div className="card" style={{maxWidth:600}}>
                 <h3>Thesis information</h3>
                 <div className="form-group">
