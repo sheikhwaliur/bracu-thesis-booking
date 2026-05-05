@@ -40,21 +40,23 @@ export default function Dashboard() {
   const fetchMyBookings = async () => { try { const res = await api.get('/bookings/mine'); setMyBookings(res.data); } catch {} };
   const fetchSupervisors = async () => { try { const res = await api.get('/supervisors'); setSupervisors(res.data); } catch {} };
   const fetchWaitlist = async () => { try { const res = await api.get('/waitlist/mine'); setMyWaitlist(res.data); } catch {} };
-  
+
 
   const handleBook = async () => {
     setError('');
     setBooking(true);
+    setSelectedSlot(null);
+    setMessage('⏳ Booking your slot...');
     try {
       await api.post('/bookings', { slot_id: selectedSlot.id, thesis_title: thesisTitle });
-      setSelectedSlot(null);
       setThesisTitle('');
       await fetchSlots();
       await fetchMyBookings();
       await fetchWaitlist();
-      setMessage('Slot booked successfully!');
+      setMessage('✅ Slot booked successfully!');
       setTimeout(() => setMessage(''), 4000);
     } catch (err) {
+      setMessage('');
       setError(err.response?.data?.error || 'Booking failed.');
     } finally {
       setBooking(false);
