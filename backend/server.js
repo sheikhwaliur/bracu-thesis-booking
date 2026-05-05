@@ -22,3 +22,13 @@ app.get('/', (req, res) => {
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// Keep server awake on free tier
+const https = require('https');
+setInterval(() => {
+  https.get('https://bracu-thesis-booking.onrender.com', (res) => {
+    console.log('Server kept alive:', res.statusCode);
+  }).on('error', (err) => {
+    console.log('Keep alive error:', err.message);
+  });
+}, 14 * 60 * 1000);
