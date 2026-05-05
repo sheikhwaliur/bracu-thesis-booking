@@ -207,7 +207,13 @@ export default function Dashboard() {
               )}
             </button>
             {showNotifications && (
-              <div style={{margin:'4px 8px',background:'rgba(20,20,24,0.98)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:10,padding:12}}>
+              <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,zIndex:100,background:'rgba(0,0,0,0.5)',backdropFilter:'blur(4px)'}} onClick={() => setShowNotifications(false)}>
+              <div style={{position:'fixed',top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:'90%',maxWidth:360,background:'rgba(20,20,24,0.99)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:14,padding:20,zIndex:101}} onClick={e => e.stopPropagation()}>
+               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+                <div style={{fontSize:12,fontWeight:500,color:'rgba(255,255,255,0.4)',letterSpacing:'0.06em'}}>NOTIFICATIONS</div>
+                <button onClick={() => setShowNotifications(false)} style={{background:'none',border:'none',color:'rgba(255,255,255,0.4)',cursor:'pointer',fontSize:16}}>✕</button>
+               </div>
+
                 {myBookings.length === 0 && <div style={{fontSize:12,color:'rgba(255,255,255,0.3)',textAlign:'center',padding:'8px 0'}}>No notifications</div>}
                 {myBookings.map(b => {
                   const diffDays = Math.ceil((new Date(b.date) - new Date()) / (1000 * 60 * 60 * 24));
@@ -220,6 +226,9 @@ export default function Dashboard() {
                   );
                 })}
               </div>
+              </div>
+            
+
             )}
           </div>
           <div className="sidebar-user" onClick={() => navigate('/profile')} style={{cursor:'pointer'}}>
