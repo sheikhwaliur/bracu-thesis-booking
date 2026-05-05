@@ -281,7 +281,10 @@ export default function Dashboard() {
                           {slot.status==='open' && <button className="book-btn" onClick={() => setSelectedSlot(slot)}>Book this slot</button>}
                         </div>
                         <div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:6}}>
-                          <span className={slot.status==='open'?'badge-open':'badge-booked'}>{slot.status==='open'?'Open':'Booked'}</span>
+                        <span className={slot.status==='open'?'badge-open':'badge-booked'}>
+                          {slot.status==='open' ? (slot.current_bookings > 0 ? `${slot.max_bookings - slot.current_bookings} spots left` : 'Open') : 'Full'}
+                        </span>
+
                           {slot.status==='booked' && (() => {
                             const inWaitlist = myWaitlist.find(w => w.slot_id===slot.id);
                             return inWaitlist ? (
